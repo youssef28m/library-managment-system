@@ -8,276 +8,163 @@ import java.util.HashMap;
 
 public class Main {
 
-    static Scanner input = new Scanner(System.in);
-    static ArrayList<HashMap<String, String>> bookList = new ArrayList<>();
-    static int idCount = 1;
-    static int boxes;
-
     public static void main(String[] args) {
 
+        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter number of boxes you have ");
-        boxes = input.nextInt();
-        input.nextLine();
+        int maxBooks;
+        System.out.println("Enter max number of books ");
+        maxBooks = scanner.nextInt();
+        scanner.nextLine();
+        String[] bookTitles = new String[maxBooks];
+        String[] bookDescriptions = new String[maxBooks];
+        boolean[] bookIssued = new boolean[maxBooks];
+        int bookCount = 0;
 
+        // Main menu loop
         while (true) {
             System.out.println("""
-            
-            ---------------------------------------------------
-            Welcome to the Library Management System!
-            1. Add a book
-            2. Search for a book (by Title or ID)
-            3. Issue a book (by ID)
-            4. Return a book (by ID) 
-            5. Delete a book (by ID)
-            6. Edit book details (Title/Description by ID)
-            7. View All books
-            8. Exit
-            9. Help
-            """);
-            System.out.println("Enter your choice");
-            boolean full = false;
-            int choice = input.nextInt();
-            input.nextLine();
-
-            // Add a book
-            if (choice == 1) {
-                // check if the library is full
-                if (boxes == 0) {
-                    System.out.println("the library is full");
-                    full = true;
-                }
-                if (!full) {
-                    addBook();
-                }
-
-            }
-            // Search for book
-            else if (choice == 2) {
-                searchBook();
-            }
-            // Issue a book
-            else if (choice == 3) {
-                issueBook();
-            }
-            // Retrun a book
-            else if (choice == 4) {
-                returnBook();
-            }
-            // delete a book
-            else if (choice == 5) {
-
-            }
-            // edit book details
-            else if (choice == 6) {
-
-            }
-            // display all books
-            else if (choice == 7) {
-                for (HashMap<String, String> book : bookList) {
-                    printBookInfo(book);
-                }
-            }
-            else if (choice == 9) {
-                System.out.println("""
-                Welcome to the Library Management System!
-                1. Add a book
-                2. Search for a book (by Title or ID)
-                3. Issue a book (by ID)
-                4. Return a book (by ID) 
-                5. Delete a book (by ID)
-                6. Edit book details (Title/Description by ID)
-                7. View All books
+                Library Management System
+                1. Add a Book
+                2. Search for a Book
+                3. Issue a Book
+                4. Return a Book
+                5. Delete a Book
+                6. Edit Book Details
+                7. View All Books
                 8. Exit
-                9. Help
-                """);
-            }
-            else {
-                System.out.println("please Enter a valid choice");
-            }
+                Choose an option: 
+            """);
 
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
 
-        }
-    }
+            if (choice == 1) { // Add a Book
+                if (bookCount < maxBooks) {
+                    System.out.print("Enter book title: ");
+                    String title = scanner.nextLine();
 
-    static void printBookInfo(HashMap<String ,String> book) {
-        System.out.println("Title: " + book.get("title"));
-        System.out.println("Description: " + book.get("description"));
-        System.out.println("id: " + book.get("id"));
-        System.out.println("availability: " + book.get("availability") + "\n--------------------------------");
-    }
+                    System.out.print("Enter book description: ");
+                    String description = scanner.nextLine();
 
-    static void addBook() {
-        // add book title
-        System.out.println("Enter book title");
-        String title = input.nextLine();
-        while (title.trim().isEmpty()) {
-            System.out.println("please enter the name of the book ");
-            title = input.nextLine();
-        }
+                    bookTitles[bookCount] = title;
+                    bookDescriptions[bookCount] = description;
 
-        // add book description
-        System.out.println("Enter book description");
-        String description = input.nextLine();
-        while (description.trim().isEmpty()) {
-            System.out.println("please enter the name of the book ");
-            description = input.nextLine();
-        }
+                    bookIssued[bookCount] = false;
+                    bookCount++;
 
-        // Add the book to the book list
-        HashMap<String, String> book = new HashMap<>();
-        book.put("title", title);
-        book.put("description", description);
-        book.put("id", String.valueOf(idCount));
-        book.put("availability", "yes");
+                    System.out.println("Book added successfully.");
+                } else {
+                    System.out.println("Library is full.");
+                }
+            } else if (choice == 2) { // Search for a Book
+                System.out.println("Search by: 1. Title 2. ID");
+                int searchChoice = scanner.nextInt();
+                scanner.nextLine();
 
-        idCount++;
-        bookList.add(book);
-        boxes--;
-    }
-
-    static void searchBook() {
-        System.out.println("""
-                1. Search by title
-                2. Search by id        
-                """);
-        String searchType = input.nextLine();
-
-
-        // search by book title
-        if (searchType.equals("1")) {
-            boolean found = false;
-            System.out.println("Enter book title you want");
-            String bookTitle = input.nextLine();
-
-            for (HashMap<String, String> book : bookList) {
-                if (book.get("title").equals(bookTitle)) {
-                    found = true;
-                    printBookInfo(book);
+                if (searchChoice == 1) {
+                    System.out.print("Enter book title: ");
+                    String searchTitle = scanner.nextLine();
+                    boolean found = false;
+                    for (int i = 0; i < bookCount; i++) {
+                        if (bookTitles[i] != null && bookTitles[i].equalsIgnoreCase(searchTitle)) {
+                            System.out.println("Book ID: " + (i + 1) + ", Title: " + bookTitles[i] +
+                                    ", Description: " + bookDescriptions[i] +
+                                    ", Status: " + (bookIssued[i] ? "Issued" : "Available"));
+                            found = true;
+                        }
+                    }
+                    if (!found) System.out.println("Book not found.");
+                }
+                else if (searchChoice == 2) {
+                    System.out.print("Enter book ID: ");
+                    int bookID = scanner.nextInt();
+                    if (bookID > 0 && bookID <= bookCount && bookTitles[bookID - 1] != null) {
+                        System.out.println("Book ID: " + bookID + ", Title: " + bookTitles[bookID - 1] +
+                                ", Description: " + bookDescriptions[bookID - 1] +
+                                ", Status: " + (bookIssued[bookID - 1] ? "Issued" : "Available"));
+                    } else {
+                        System.out.println("Invalid book ID.");
+                    }
                 }
             }
-
-            if (!found) {
-                System.out.println("the book is not in the library");
-            }
-        }
-        // search by id
-        else if (searchType.equals("2")) {
-            boolean found = false;
-            System.out.println("Enter book id you want");
-            String bookId = input.nextLine();
-
-            for (HashMap<String, String> book : bookList) {
-                if (book.get("id").equals(bookId)) {
-                    found = true;
-                    printBookInfo(book);
+            else if (choice == 3) { // Issue a Book
+                System.out.print("Enter book ID to issue: ");
+                int bookID = scanner.nextInt();
+                if (bookID > 0 && bookID <= bookCount && bookTitles[bookID - 1] != null) {
+                    if (!bookIssued[bookID - 1]) {
+                        bookIssued[bookID - 1] = true;
+                        System.out.println("Book issued successfully.");
+                    } else {
+                        System.out.println("Book is already issued.");
+                    }
+                } else {
+                    System.out.println("Invalid book ID.");
                 }
             }
-            if (!found) {
-                System.out.println("the book is not in the library");
-                searchBook();
+            else if (choice == 4) { // Return a Book
+                System.out.print("Enter book ID to return: ");
+                int bookID = scanner.nextInt();
+                if (bookID > 0 && bookID <= bookCount && bookTitles[bookID - 1] != null) {
+                    if (bookIssued[bookID - 1]) {
+                        bookIssued[bookID - 1] = false;
+                        System.out.println("Book returned successfully.");
+                    } else {
+                        System.out.println("Book is already available.");
+                    }
+                } else {
+                    System.out.println("Invalid book ID.");
+                }
             }
-        }
-        else {
-            System.out.println("Enter a right command");
-            searchBook();
-        }
-
-    }
-    
-    static void x(String msg) {
-        //System.out.println(msg);
-    }
-    
-    static int getBookIndex(String bookId) {
-        x("getBookIndex("+bookId+")");
-        
-        int bookListLength = bookList.size();
-        x("bookListLength = "+bookListLength);
-        
-        x("Start for");
-        for (int bookListIndex = 0; bookListIndex < bookListLength; bookListIndex++) {
-            HashMap<String, String> thisBook = bookList.get(bookListIndex);    
-            x("thisBook: "+ thisBook);
-            
-            x("thisBook.get(\"id\") = "+thisBook.get("id"));
-            if (thisBook.get("id").equals(bookId)) {
-                x("thisBook.get(\"id\") == bookId");
-                return bookListIndex;
+            else if (choice == 5) { // Delete a Book
+                System.out.print("Enter book ID to delete: ");
+                int bookID = scanner.nextInt();
+                if (bookID > 0 && bookID <= bookCount && bookTitles[bookID - 1] != null) {
+                    for (int i = bookID - 1; i < bookCount - 1; i++) {
+                        bookTitles[i] = bookTitles[i + 1];
+                        bookDescriptions[i] = bookDescriptions[i + 1];
+                        bookIssued[i] = bookIssued[i + 1];
+                    }
+                    bookCount--;
+                    System.out.println("Book deleted successfully.");
+                } else {
+                    System.out.println("Invalid book ID.");
+                }
             }
-        }
-        x("End for and return -1");
-                
-        return -1; // not found
-        
-    }
-    
-    static void issueBook() {
-        
-        
-        while (true) {
-            
-            System.out.print("Enter book id: ");
-            String bookId = input.nextLine();
-            System.out.println("");
-            
-            int bookIndex = getBookIndex(bookId);
-            if (bookIndex == -1 /* not found */) {
-                System.out.println("This is not valid id!");
-                continue;
-            } 
-            
-            
-            HashMap<String, String> book = bookList.get(bookIndex); // Get old book
-            if ("no".equals(book.get("availability"))) {
-                System.out.println("Sorry this book is already issued.");
+            else if (choice == 6) { // Edit Book Details
+                System.out.print("Enter book ID to edit: ");
+                int bookID = scanner.nextInt();
+                scanner.nextLine();
+                if (bookID > 0 && bookID <= bookCount && bookTitles[bookID - 1] != null) {
+                    System.out.println("Edit: 1. Title 2. Description");
+                    int editChoice = scanner.nextInt();
+                    scanner.nextLine();
+                    if (editChoice == 1) {
+                        System.out.print("Enter new title: ");
+                        bookTitles[bookID - 1] = scanner.nextLine();
+                        System.out.println("Title updated.");
+                    } else if (editChoice == 2) {
+                        System.out.print("Enter new description: ");
+                        bookDescriptions[bookID - 1] = scanner.nextLine();
+                        System.out.println("Description updated.");
+                    }
+                } else {
+                    System.out.println("Invalid book ID.");
+                }
+            }
+            else if (choice == 7) { // View All Books
+                for (int i = 0; i < bookCount; i++) {
+                    if (bookTitles[i] != null) {
+                        System.out.println("Book ID: " + (i + 1) + ", Title: " + bookTitles[i] +
+                                ", Description: " + bookDescriptions[i] +
+                                ", Status: " + (bookIssued[i] ? "Issued" : "Available"));
+                    }
+                }
+            } else if (choice == 8) { // Exit
+                System.out.println("Exiting the system.");
                 break;
-                
             } else {
-                
-                
-                book.put("availability","no"); // change its features
-                bookList.set(bookIndex,book); // replace old by new book
-                System.out.println("\"" + book.get("title") + "\" book has issued successfully.");
-                
-                break;
-                
-            }
-            
-        }
-        
-        
-        
-    }
-
-    static void returnBook() {
-        while (true) {
-            
-            System.out.print("Enter book id: ");
-            String bookId = input.nextLine();
-            System.out.println("");
-            
-            int bookIndex = getBookIndex(bookId);
-            if (bookIndex == -1 /* not found */) {
-                System.out.println("This is not valid id!");
-                continue;
-            } 
-            
-            
-            HashMap<String, String> book = bookList.get(bookIndex); // Get old book
-            if ("yes".equals(book.get("availability"))) {
-                System.out.println("This book is already exist!");
-                break;
-                
-            } else {
-                
-                
-                book.put("availability","yes"); // change its features
-                bookList.set(bookIndex,book); // replace old by new book
-                System.out.println("\"" + book.get("title") + "\" book has returned successfully.");
-
-                break;
-                
+                System.out.println("Invalid choice.");
             }
         }
     }
